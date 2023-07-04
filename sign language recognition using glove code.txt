@@ -1,0 +1,183 @@
+/*************
+       scl-----A5   Sda-----A4
+*************/
+#include <Wire.h>
+#include <MPU6050.h>
+MPU6050 mpu;
+#define adc1 A0
+#define adc2 A1
+#define adc3 A2
+#define adc4 A3
+#define ledd 13
+int flex2=0,flex1=0,flex3=0,flex4=0;
+void setup() 
+{
+ pinMode(ledd,OUTPUT);
+ digitalWrite(ledd,LOW);
+ Serial.begin(9600);
+ Serial.println("Initialize MPU6050");
+ while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
+ {
+  Serial.println("Could not find a valid MPU6050 sensor, check wiring!");
+  delay(500);
+ }
+ checkSettings();
+}
+void checkSettings()
+{
+ Serial.println();  
+ Serial.print(" * Sleep Mode:            ");
+ Serial.println(mpu.getSleepEnabled() ? "Enabled" : "Disabled");
+ Serial.print(" * Clock Source:          ");
+ switch(mpu.getClockSource())
+ {
+  case MPU6050_CLOCK_KEEP_RESET:     Serial.println("Stops the clock and keeps the timing generator in reset"); break;
+  case MPU6050_CLOCK_EXTERNAL_19MHZ: Serial.println("PLL with external 19.2MHz reference"); break;
+  case MPU6050_CLOCK_EXTERNAL_32KHZ: Serial.println("PLL with external 32.768kHz reference"); break;
+  case MPU6050_CLOCK_PLL_ZGYRO:      Serial.println("PLL with Z axis gyroscope reference"); break;
+  case MPU6050_CLOCK_PLL_YGYRO:      Serial.println("PLL with Y axis gyroscope reference"); break;
+  case MPU6050_CLOCK_PLL_XGYRO:      Serial.println("PLL with X axis gyroscope reference"); break;
+  case MPU6050_CLOCK_INTERNAL_8MHZ:  Serial.println("Internal 8MHz oscillator"); break;
+ }
+ Serial.print("* Accelerometer offsets:");
+ Serial.print(mpu.getAccelOffsetX());
+ Serial.print(" / ");
+ Serial.print(mpu.getAccelOffsetY());
+ Serial.print(" / ");
+ Serial.println(mpu.getAccelOffsetZ());
+ Serial.println();
+}
+void loop()
+{
+ flex1=analogRead(adc1);
+ flex2=analogRead(adc2);
+ flex3=analogRead(adc3);
+ flex4=analogRead(adc4);
+ delay(10);
+ Vector rawAccel = mpu.readRawAccel();
+ Vector normAccel = mpu.readNormalizeAccel();
+ /*Serial.print(" Xnorm = ");
+ Serial.print(normAccel.XAxis);
+ Serial.print(" Ynorm = ");
+ Serial.print(normAccel.YAxis);
+ Serial.print(" Znorm = ");
+ Serial.println(normAccel.ZAxis);
+ Serial.print(flex1);
+ Serial.print("-");
+ Serial.print(flex2);
+ Serial.print("-");
+ Serial.print(flex3);
+ Serial.print("-");
+ Serial.print(flex4);
+//  Serial.println("-");*/
+ delay(1000);
+ if((flex1<180)&&(flex2<180)&&(flex3<180)&&(flex4<180)&&(normAccel.XAxis>6))
+ {
+  Serial.println("A");
+ }
+ else if((flex1>200)&&(flex2>200)&&(flex3>200)&&(flex4>200)&&(normAccel.XAxis>6))
+ {
+  Serial.println("B");
+ }
+ else if(((flex1>160)&&(flex1<220))&&((flex2>160)&&(flex2<220))&&(normAccel.ZAxis>3))
+ {
+  Serial.println("C");
+ }
+ else if((flex1>200)&&(flex2<180)&&(flex3<180)&&(flex4<180)&&(normAccel.XAxis>4)&&(normAccel.ZAxis>4))
+ {
+  Serial.println("G");
+ }
+ else if((flex1>200)&&(flex2<180)&&(flex3<180)&&(flex4<180)&&(normAccel.XAxis>6))
+ {
+  Serial.println("D");
+ } 
+ else if((flex1<180)&&(flex2>200)&&(flex3>200)&&(flex4>200)&&(normAccel.YAxis<-6))
+ {
+  Serial.println("E");
+ }
+ else if((flex1<180)&&(flex2>200)&&(flex3>200)&&(flex4>200)&&(normAccel.XAxis>6))
+ {
+  Serial.println("F");
+ }
+ else if((flex1>200)&&(flex2>200)&&(flex3<180)&&(flex4<180)&&(normAccel.XAxis>4)&&(normAccel.ZAxis>4))
+ {
+  Serial.println("H");
+ }
+  else if((flex1>200)&&(flex2>200)&&(flex3<180)&&(flex4<180)&&(normAccel.XAxis>4))
+ {
+  Serial.println("K");
+ }
+ else if((flex1<180)&&(flex2<180)&&(flex3<180)&&(flex4>220)&&(normAccel.XAxis>6))
+ {
+  Serial.println("I");
+ }
+else if((flex1<180)&&(flex2>220)&&(flex3<180)&&(flex4>220)&&(normAccel.YAxis>6))
+ {
+  Serial.println("J");
+ }
+ else if((flex1>220)&&(flex2<180)&&(flex3<180)&&(flex4<180)&&(normAccel.ZAxis>6))
+ {
+  Serial.println("L");
+ }
+ else if((flex1<180)&&(flex2<180)&&(flex3<180)&&(flex4<180)&&(normAccel.ZAxis>6))
+ {
+  Serial.println("M");
+ }
+ else if((flex1>220)&&(flex2<180)&&(flex3<180)&&(flex4>220)&&(normAccel.XAxis>6))
+ {
+  Serial.println("U");
+ } 
+ else if((flex1>220)&&(flex2<180)&&(flex3<180)&&(flex4>220)&&(normAccel.XAxis<6) && (normAccel.XAxis>2))
+ {
+  Serial.println("N");
+ }
+ else if((flex1<180)&&(flex2<180)&&(flex3>220)&&(flex4>220)&&(normAccel.ZAxis>6))
+ {
+  Serial.println("O");
+ }
+ else if((flex1<180)&&(flex2>220)&&(flex3>220)&&(flex4>220)&&(normAccel.XAxis<-6))
+ {
+  Serial.println("P");
+ }
+ else if((flex1>220)&&(flex2<180)&&(flex3>220)&&(flex4>220)&&(normAccel.XAxis>6))
+ {
+  Serial.println("Q");
+ }
+ else if((flex1>220)&&(flex2>220)&&(flex3<180)&&(flex4>220)&&(normAccel.XAxis>6))
+ {
+  Serial.println("R");
+ }
+ else if((flex1<180)&&(flex2<180)&&(flex3<180)&&(flex4<180)&&(normAccel.YAxis>6))
+ {
+  Serial.println("S");
+ }
+ else if((flex1>220)&&(flex2>220)&&(flex3<180)&&(flex4>220)&&(normAccel.YAxis>6))
+ {
+  Serial.println("T");
+ }
+ else if((flex1>220)&&(flex2<180)&&(flex3<180)&&(flex4>220)&&(normAccel.YAxis>6))
+ {
+  Serial.println("V");
+ }
+ else if((flex1>220)&&(flex2>220)&&(flex3>220)&&(flex4<180)&&(normAccel.XAxis>6))
+ {
+  Serial.println("W");
+ }
+ else if((flex1>220)&&(flex2<180)&&(flex3<180)&&(flex4<180)&&(normAccel.YAxis>6))
+ {
+  Serial.println("X");
+ }
+ else if((flex1>220)&&(flex2<180)&&(flex3<180)&&(flex4>220)&&(normAccel.YAxis<-5))
+ {
+  Serial.println("Y");
+ }
+ else if((flex1>220)&&(flex2<180)&&(flex3<180)&&(flex4<180)&&(normAccel.YAxis<-5))
+ {
+  Serial.println("Z");
+ }
+ else
+ {
+  digitalWrite(ledd,HIGH);
+ } 
+ delay(200);
+}
